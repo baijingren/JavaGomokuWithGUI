@@ -8,4 +8,18 @@ public class Controller {
         String newText = "test";
         Var.view.getChatPanel().addMessage(newText);
     }
+    public boolean putChess(int x, int y, int player){
+        int color;
+        if(player == Var.BLACK){
+            color = Var.BLACK;
+        }
+        else{
+            color = Var.WHITE;
+        }
+//        while(!Var.model.setChess(x, y, color));
+        if(Var.model.setChess(x, y, color)){
+            return true;
+        }
+        return false;
+    }
 }
