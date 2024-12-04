@@ -20,11 +20,6 @@ public class BoardPanel extends JPanel{
         cols = boardSize;
         rows = boardSize;
         addMouseListener(new MouseAdapter() {
-//            @Override
-//            public void mouseMoved(MouseEvent e) {
-//
-//            }
-
             @Override
             public void mouseClicked(MouseEvent e) {
                 int x = e.getX();
@@ -42,8 +37,25 @@ public class BoardPanel extends JPanel{
                         Var.isYourTurn = false;
                         Var.network.sendChess(cellX, cellY, (Var.youAreBlack?Var.BLACK:Var.WHITE));
                     }
-                    else
-                        System.err.println("error on " + cellX + " " + cellY);
+                    else{
+                        JOptionPane.showMessageDialog(null, "You can't put chess here.");
+                    }
+                }
+
+                repaint();
+            }
+            public void mouseReleased(MouseEvent e){
+                int x = e.getX();
+                int y = e.getY();
+                int cellWidth = getWidth() / (boardSize + 1);
+                int cellHeight = getHeight() / (boardSize + 1);
+
+                int cellX = x / cellWidth;
+                int cellY = y / cellHeight;
+                int isWin = Var.model.isCurrentPlayerWin(cellX, cellY);
+                if(isWin == 1){
+                    JOptionPane.showMessageDialog(null, "You Win!");
+                    //TODO: 向对方发送胜利信息
                 }
                 repaint();
             }

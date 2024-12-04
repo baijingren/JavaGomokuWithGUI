@@ -44,4 +44,55 @@ public class Model {
     public LinkedList<Cell> getChessList(){
         return chessList;
     }
+
+    public int query(int x, int y){
+        return board[x][y];
+    }
+    public int isCurrentPlayerWin(int x, int y){
+        int color = query(x, y);
+        if (color == Var.NULL) {
+            System.err.println("unknownERROR");
+            return 0;
+        }
+        if (checkDirection(x, y, color, 1, 0) ||
+                checkDirection(x, y, color, 0, 1) ||
+                checkDirection(x, y, color, 1, 1) ||
+                checkDirection(x, y, color, 1, -1)) {
+            return 1;
+        }
+        return 0;
+    }
+    private boolean checkDirection(int x, int y, int color, int dx, int dy) {
+        int count = 1;
+        int nx = x + dx;
+        int ny = y + dy;
+        while (nx >= 0 && nx < 15 && ny >= 0 && ny < 15 && query(nx, ny) == color) {
+            count++;
+            if (count >= 5) {
+                return true;
+            }
+            nx += dx;
+            ny += dy;
+        }
+        nx = x - dx;
+        ny = y - dy;
+        while (nx >= 0 && nx < 15 && ny >= 0 && ny < 15 && query(nx, ny) == color) {
+            count++;
+            if (count >= 5) {
+                return true;
+            }
+            nx -= dx;
+            ny -= dy;
+        }
+        return false;
+    }
+    public void clear(){
+        chessList.clear();
+        for(int i = 0; i <= Var.boardSize; i++){
+            for(int j = 0; j <= Var.boardSize; j++){
+                board[i][j] = Var.NULL;
+            }
+        }
+    }
+
 }

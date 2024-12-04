@@ -1,36 +1,54 @@
 package xyz.moonflowerr.GomokuWithGUI.Network;
 
+import netscape.javascript.JSObject;
 import xyz.moonflowerr.GomokuWithGUI.Var;
 
-import java.io.StringReader;
+import java.io.*;
 import java.lang.reflect.Array;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashSet;
 
 public class Network {
     public static String IP;
     public static Broadcast broadcast = new Broadcast();
+    public static Controller controller = new Controller();
+    private ServerSocket serverSocket;
+    private Socket socket
 
-    public void getOpponent() throws Exception{
-        HashSet<String[]> infoList = new HashSet<>();
-        infoList.add(broadcast.receiveBroadcast());
+    public void StartTCPConnection(String IP, int port) throws IOException {
+        serverSocket = new ServerSocket(port);
+
+        socket = serverSocket.accept();
+
     }
 
-    public void sendMessage(String message){
+    public InputStream getInputStream() throws IOException {
+        InputStream inputStream = socket.getInputStream(); // 从聊天框读取数据，一行一行
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+        String message = null;
+        while((message = bufferedReader.readLine()) != null){
+            // 拼接到文本域
 
+        }
+        return null;
     }
 
-    public String getMessage(){
-        return "test";
+    public OutputStream getOutputStream(){
+        OutputStream outputStream = socket.getOutputStream();
+        BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream));
+        return null;
     }
 
-    public void sendChess(int x, int y, int color){
+    public void close(){
 
     }
 
     public static void main(String[] args) {
         try {
             do {
+                broadcast.sendBroadcast();
                 broadcast.receiveBroadcast();
                 try {
                     Thread.sleep(5000);
@@ -38,9 +56,10 @@ public class Network {
                     e.printStackTrace();
                 }
             } while (true);
-//            broadcast.sendBroadcast();
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+
     }
 }

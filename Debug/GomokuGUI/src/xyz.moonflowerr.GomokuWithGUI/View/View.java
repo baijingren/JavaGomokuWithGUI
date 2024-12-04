@@ -84,12 +84,11 @@ public class View {
 
     public void getName(){
         String hostName = JOptionPane.showInputDialog("Please input your name:");
-        if(hostName == null || hostName.isEmpty()) {
-            exit(0);
+        while(hostName == null || hostName.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Name cannot be empty.");
+            hostName = JOptionPane.showInputDialog("Please input your name:");
         }
-        else {
-            Var.name = hostName;
-        }
+        Var.name = hostName;
     }
 
     public boolean isConnected() {

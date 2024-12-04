@@ -7,7 +7,18 @@ import java.io.*;
 
 public class Broadcast {
     private static final int PORT = 17890;
-    private static final String BROADCAST_IP = "Localhost"; // TODO: 正式代码中需要获取本机局域网IP
+
+    private String BROADCAST_IP; // TODO: 正式代码中需要获取本机局域网IP
+    private String playerName;
+    private Thread broadcastThread;
+    private Thread listenThread;
+    private boolean running = true;
+
+
+    public Broadcast(String LocalIP){
+        BROADCAST_IP = LocalIP;
+        playerName = Var.name;
+    }
     public void sendBroadcast() throws IOException{
         InetAddress myAddress = InetAddress.getByName(BROADCAST_IP);
         DatagramSocket socket = new DatagramSocket();
