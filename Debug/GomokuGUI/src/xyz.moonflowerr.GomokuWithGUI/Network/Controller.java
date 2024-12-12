@@ -1,22 +1,30 @@
+/**
+ * @since openJDK 22
+ * @author moonflowerr
+ * @package xyz.moonflowerr.GomokuWithGUI.Network
+ */
 package xyz.moonflowerr.GomokuWithGUI.Network;
 
+import java.awt.*;
+import java.util.List;
 import java.util.HashSet;
 
 public class Controller {
-    public void getOpponent(Broadcast broadcast) throws Exception{
-        HashSet<String[]> infoList = new HashSet<>();
-        infoList.add(broadcast.receiveBroadcast());
+    public Network network;
+
+    public Controller(Network network){
+        this.network = network;
     }
 
     public void sendMessage(String message){
-
-    }
-
-    public String getMessage(){
-        return "test";
+        network.sendMessage(new Message(Message.MessageType.MESSAGE, message));
     }
 
     public void sendChess(int x, int y, int color){
+        network.sendMessage(new Message(Message.MessageType.SET_CHESS, x, y, color));
+    }
 
+    public void sendPlayerInfo(String name, int color){
+        network.sendMessage(new Message(Message.MessageType.PLAYER_INFO, new String[]{name, Integer.toString(color)}));
     }
 }

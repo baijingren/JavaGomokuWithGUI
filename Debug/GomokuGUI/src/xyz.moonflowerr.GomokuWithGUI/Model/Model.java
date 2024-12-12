@@ -1,3 +1,8 @@
+/**
+ * @since openJDK 22
+ * @author moonflowerr
+ * @package xyz.moonflowerr.GomokuWithGUI.Model
+ */
 package xyz.moonflowerr.GomokuWithGUI.Model;
 
 import xyz.moonflowerr.GomokuWithGUI.Var;

@@ -1,9 +1,16 @@
+/**
+ * @since openJDK 22
+ * @author moonflowerr
+ * @package xyz.moonflowerr.GomokuWithGUI
+ */
 package xyz.moonflowerr.GomokuWithGUI;
 
 import xyz.moonflowerr.GomokuWithGUI.Controller.Controller;
 import xyz.moonflowerr.GomokuWithGUI.Network.Network;
 import xyz.moonflowerr.GomokuWithGUI.View.View;
 import xyz.moonflowerr.GomokuWithGUI.Model.Model;
+
+import java.io.IOException;
 
 public class Var {
     public static final int BLACK = 0x1001;
@@ -14,9 +21,18 @@ public class Var {
     public static View view = new View();
     public static Controller controller = new Controller();
     public static Model model = new Model();
-    public static Network network = new Network();
+    public static Network network;
+	public static xyz.moonflowerr.GomokuWithGUI.Network.Controller networkController = new xyz.moonflowerr.GomokuWithGUI.Network.Controller(network);
 
-    // View
+	static {
+		try {
+			network = new Network();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	// View
     public static final int boardSize = 15;
 
     // Controller
@@ -27,4 +43,5 @@ public class Var {
     public static String name = "test"; // TODO: 实现在游戏开始界面输入名字
     public static String IP;
     public static String opponentName;
+    public static String opponentIP;
 }

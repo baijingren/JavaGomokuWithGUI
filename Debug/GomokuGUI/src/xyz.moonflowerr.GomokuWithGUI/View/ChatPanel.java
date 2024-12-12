@@ -47,7 +47,8 @@ public class ChatPanel extends JPanel{
         add(sendButton, c);
     }
 
-    public void addMessage(String message){
+    public void addMessage(String playername, String message){
+        chatArea.append(playername + ": \n");
         chatArea.append(message + "\n");
     }
 }

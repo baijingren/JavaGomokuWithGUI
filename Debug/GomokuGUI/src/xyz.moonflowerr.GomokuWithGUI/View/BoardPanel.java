@@ -35,7 +35,7 @@ public class BoardPanel extends JPanel{
                     if(isSuccess) {
                         System.err.println("set Chess.");
                         Var.isYourTurn = false;
-                        Var.network.sendChess(cellX, cellY, (Var.youAreBlack?Var.BLACK:Var.WHITE));
+//                        Var.network.sendChess(cellX, cellY, (Var.youAreBlack?Var.BLACK:Var.WHITE));
                     }
                     else{
                         JOptionPane.showMessageDialog(null, "You can't put chess here.");
