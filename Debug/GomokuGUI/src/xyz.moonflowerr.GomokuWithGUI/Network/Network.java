@@ -96,6 +96,7 @@ public class Network {
 				isFirstConnected = false;
 				Var.youAreBlack = false;
 				notifyConnectionListeners();
+
 //				System.err.println("Connected to " + socket.getInetAddress());
 				LogPrinter.printLog("Accepted connection from " + socket.getInetAddress() + ". (Network.startServer)");
 				handleConnection(socket);
@@ -106,7 +107,7 @@ public class Network {
 //				e.printStackTrace();
 				LogPrinter.printSevere("Other error happened when start the server: " + e.getMessage() + ". (Network.startServer)");
 			} finally {
-				close();
+//				close();
 			}
 		}).start();
 	}
@@ -115,7 +116,7 @@ public class Network {
 	 * 通过IP连接到对手
 	 * @param ip 对手IP
 	 */
-	public void connectToTarget(String ip) {
+	public void connectToTarget(String ip) throws RuntimeException {
 		if (ip == null) {
 			return;
 		}
@@ -124,11 +125,15 @@ public class Network {
 				Socket client = new Socket(ip, PORT);
 				isFirstConnected = true;
 				Var.youAreBlack = true;
+				running = true;
+				socket = client;
+				notifyConnectionListeners();
 				handleConnection(client);
 				LogPrinter.printLog("Connected to " + ip);
 			} catch (IOException e) {
 //				e.printStackTrace();
 				LogPrinter.printSevere("Failed to connect to the target: " + e.getMessage() + ". (Network.connectToTarget)");
+				throw new RuntimeException(e);
 			} catch (Exception e) {
 //				e.printStackTrace();
 				LogPrinter.printSevere("Other error happened when connect to the target: " + e.getMessage() + ". (Network.connectToTarget)");
@@ -148,6 +153,7 @@ public class Network {
 		try (BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			 PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
 			notifyConnectionListeners();
+			Var.networkController.sendPlayerInfo(Var.name);
 			while (running) {
 				String line = in.readLine();
 				if (line == null) {
@@ -186,7 +192,10 @@ public class Network {
 		switch (message.getType()) {
 			case MESSAGE -> Var.controller.updateMessage(message.getContent()[1]);
 			case SET_CHESS -> Var.controller.updateChess(message.getX(), message.getY(), message.getPlayer());
-			case PLAYER_INFO -> LogPrinter.printLog("Player info: " + Arrays.toString(message.getInfo()));
+			case PLAYER_INFO -> {
+				Var.opponentName = message.getInfo()[0];
+				LogPrinter.printLog("Player info: " + Arrays.toString(message.getInfo()));
+			}
 			case CONNECT -> {
 				Var.opponentIP = message.getInfo()[0];
 				LogPrinter.printLog("Connected to " + Var.opponentIP + ". (Network.java)");

@@ -18,12 +18,7 @@ public class Var {
     public static final int NULL = 0x1000;
 
     //Main
-    public static View view = new View();
-    public static Controller controller = new Controller();
-    public static Model model = new Model();
-    public static Network network;
-	public static xyz.moonflowerr.GomokuWithGUI.Network.Controller networkController = new xyz.moonflowerr.GomokuWithGUI.Network.Controller(network);
-
+	public static Network network;
 	static {
 		try {
 			network = new Network();
@@ -31,6 +26,11 @@ public class Var {
 			throw new RuntimeException(e);
 		}
 	}
+	public static View view = new View();
+	public static Controller controller = new Controller();
+	public static Model model = new Model();
+
+	public static xyz.moonflowerr.GomokuWithGUI.Network.Controller networkController = new xyz.moonflowerr.GomokuWithGUI.Network.Controller(network);
 
 	// View
     public static final int boardSize = 15;

@@ -19,7 +19,7 @@ public class Message {
 	private int player;
 
 	/** info 在不同消息类型下的用法
-	 * <p>PLAYER_INFO: info[0]为玩家名，info[1]为玩家确定颜色的时间</p>
+	 * <p>PLAYER_INFO: info[0]为玩家名，info[1]无用</p>
 	 * <p>CONNECT: info[0]为对方名字，info[1]为对方颜色</p>
 	 * <p>DISCONNECT: info[0]为对方IP，info[1]为对方名字</p>
 	 * <p>ERROR: info[0]为错误信息</p>

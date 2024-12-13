@@ -47,6 +47,31 @@ public class PlayerPanel extends JPanel {
         add(timeLabel, c);
     }
 
+    public PlayerPanel(String name) {
+        super();
+        setLayout(new GridBagLayout());
+        setPreferredSize(new Dimension(200, 100));
+        nameLabel = new JLabel(name);
+        nameLabel.setMaximumSize(new Dimension(100, 50));
+
+		timeLabel = new JLabel("0");
+        timeLabel.setMaximumSize(new Dimension(100, 50));
+
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 0;
+        c.weightx = 1;
+        c.weighty = 0.5;
+        c.gridheight = 1;
+        add(nameLabel, c);
+
+        c.gridx = 0;
+        c.gridy = 1;
+        c.weightx = 1;
+        c.weighty = 0.5;
+        add(timeLabel, c);
+    }
+
     public void setTime(int time) {
         timeLabel.setText(String.valueOf(time));
     }

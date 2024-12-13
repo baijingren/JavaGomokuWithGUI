@@ -30,9 +30,13 @@ public class View implements ConnectionListener {
 	Boolean connected = false;
 
 	JOptionPane connectionDialog;
+	JFrame tmplateFrame;
+
+	IPconnectionPanel ipPanel;
 
 	public View() {
 		super();
+		Var.network.addConnectionListener(this);
 	}
 
 	/// 创建主窗口，包括棋盘、聊天框、玩家信息面板、控制面板
@@ -42,13 +46,8 @@ public class View implements ConnectionListener {
 		frame.setSize(1200, 900);
 		frame.setLayout(new GridBagLayout());
 
-		URL hostHeadImageURL = getClass().getResource("/Icon/Cell/White/Center.png");
-		URL guestHeadImageURL = getClass().getResource("/Icon/Cell/White/Center.png");
-		if (hostHeadImageURL == null || guestHeadImageURL == null) {
-			System.err.println("Cannot find head image");
-		}
-		hostPlayerPanel = new PlayerPanel("Host", hostHeadImageURL);
-		guestPlayerPanel = new PlayerPanel("Guest", guestHeadImageURL);
+		hostPlayerPanel = new PlayerPanel(Var.name);
+		guestPlayerPanel = new PlayerPanel(Var.opponentName);
 
 		boardPanel = new BoardPanel();
 		chatPanel = new ChatPanel();
@@ -89,6 +88,28 @@ public class View implements ConnectionListener {
 		c.weighty = (0.5 / 12.0);
 		frame.add(guestPlayerPanel, c);
 
+		tmplateFrame = new JFrame();
+		ipPanel = new IPconnectionPanel();
+		tmplateFrame.add(ipPanel);
+		tmplateFrame.setSize(500, 100);
+		tmplateFrame.setResizable(false);
+		tmplateFrame.setVisible(true);
+
+		while (!connected) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				LogPrinter.printSevere("Thread was interrupted: " + e.getMessage() + ". (View.createWindow)");
+			}
+		}
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			LogPrinter.printSevere("Thread was interrupted: " + e.getMessage() + ". (View.createWindow)");
+		}
+
 		frame.setResizable(false);
 		frame.setVisible(true);
 	}
@@ -107,26 +128,6 @@ public class View implements ConnectionListener {
 		Var.name = hostName;
 	}
 
-	/// 启动面板，输入对手IP
-	public void getOpponentIP() {
-		String localIP = null;
-		try {
-			localIP = InetAddress.getLocalHost().getHostAddress();
-		} catch (UnknownHostException e) {
-			LogPrinter.printSevere("Cannot get local IP address. " + e.getMessage());
-			localIP = "Error";
-		}
-//		String opponentIP = JOptionPane.showInputDialog("Your IP address is " + localIP + "\n" + "Waiting for opponent connection, or you can input your opponent IP:");
-		connectionDialog = new JOptionPane();
-		String opponentIP = connectionDialog.showInputDialog("Your IP address is " + localIP + "\n" + "Waiting for opponent connection, or you can input your opponent IP:");
-		while (opponentIP == null || opponentIP.isEmpty()) {
-			JOptionPane.showMessageDialog(null, "IP cannot be empty.");
-			opponentIP = JOptionPane.showInputDialog("Your IP address is " + localIP + "\n" + "Waiting for opponent connection, or you can input your opponent IP:");
-		}
-		Var.opponentIP = opponentIP;
-		Var.network.connectToTarget(Var.opponentIP);
-	}
-
 	public BoardPanel getBoardPanel() {
 		return boardPanel;
 	}
@@ -138,9 +139,9 @@ public class View implements ConnectionListener {
 	public void onConnect() {
 		connected = true;
 		chatPanel.addMessage("System", "Connected to " + Var.opponentIP);
-		// TODO:如果有等待连接的对话框，可以在这里关闭它。
-		if (connectionDialog != null) {
-			connectionDialog.setVisible(false);
+		//如果有等待连接的对话框，可以在这里关闭它。
+		if(tmplateFrame != null) {
+			tmplateFrame.setVisible(false);
 		}
 	}
 

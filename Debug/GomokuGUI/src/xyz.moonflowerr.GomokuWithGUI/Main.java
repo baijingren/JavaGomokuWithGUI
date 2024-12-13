@@ -19,7 +19,6 @@ public class Main {
         init();
         Var.view.getName();
         Var.network.startServer();
-        Var.view.getOpponentIP();
         Var.view.createWindow();
     }
 }
