@@ -88,32 +88,33 @@ public class Network {
 	 */
 	public void startServer() {
 		new Thread(() -> {
-			try {
-				LogPrinter.printLog("Server started. (Network.startServer)");
-				LogPrinter.printLog("Waiting for a connection... (Network.startServer)");
-				socket = serverSocket.accept();
-				running = true;
-				isFirstConnected = false;
-				Var.youAreBlack = false;
-				notifyConnectionListeners();
+			while (true) {
+				try {
+					LogPrinter.printLog("Server started. (Network.startServer)");
+					LogPrinter.printLog("Waiting for a connection... (Network.startServer)");
+					socket = serverSocket.accept();
+					running = true;
+					isFirstConnected = false;
+					Var.youAreBlack = false;
+					notifyConnectionListeners();
 
 //				System.err.println("Connected to " + socket.getInetAddress());
-				LogPrinter.printLog("Accepted connection from " + socket.getInetAddress() + ". (Network.startServer)");
-				handleConnection(socket);
-			} catch (IOException e) {
+					LogPrinter.printLog("Accepted connection from " + socket.getInetAddress() + ". (Network.startServer)");
+					handleConnection(socket);
+				} catch(IOException e){
 //				e.printStackTrace();
-				LogPrinter.printSevere("Failed to start the server: " + e.getMessage() + ". (Network.startServer)");
-			} catch (Exception e) {
+					LogPrinter.printSevere("Failed to start the server: " + e.getMessage() + ". (Network.startServer)");
+				} catch(Exception e){
 //				e.printStackTrace();
-				LogPrinter.printSevere("Other error happened when start the server: " + e.getMessage() + ". (Network.startServer)");
-			} finally {
-//				close();
+					LogPrinter.printSevere("Other error happened when start the server: " + e.getMessage() + ". (Network.startServer)");
+				}
 			}
 		}).start();
 	}
 
 	/**
 	 * 通过IP连接到对手
+	 *
 	 * @param ip 对手IP
 	 */
 	public void connectToTarget(String ip) throws RuntimeException {
@@ -121,30 +122,31 @@ public class Network {
 			return;
 		}
 		new Thread(() -> {
-			try {
-				Socket client = new Socket(ip, PORT);
-				isFirstConnected = true;
-				Var.youAreBlack = true;
-				running = true;
-				socket = client;
-				notifyConnectionListeners();
-				handleConnection(client);
-				LogPrinter.printLog("Connected to " + ip);
-			} catch (IOException e) {
+			while (true) {
+				try {
+					Socket client = new Socket(ip, PORT);
+					isFirstConnected = true;
+					Var.youAreBlack = true;
+					running = true;
+					socket = client;
+					notifyConnectionListeners();
+					handleConnection(client);
+					LogPrinter.printLog("Connected to " + ip);
+				} catch (IOException e) {
 //				e.printStackTrace();
-				LogPrinter.printSevere("Failed to connect to the target: " + e.getMessage() + ". (Network.connectToTarget)");
-				throw new RuntimeException(e);
-			} catch (Exception e) {
+					LogPrinter.printSevere("Failed to connect to the target: " + e.getMessage() + ". (Network.connectToTarget)");
+					throw new RuntimeException(e);
+				} catch (Exception e) {
 //				e.printStackTrace();
-				LogPrinter.printSevere("Other error happened when connect to the target: " + e.getMessage() + ". (Network.connectToTarget)");
-			} finally {
-//				close();
+					LogPrinter.printSevere("Other error happened when connect to the target: " + e.getMessage() + ". (Network.connectToTarget)");
+				}
 			}
 		}).start();
 	}
 
 	/**
 	 * 处理连接，同时通过监听器返回连接状态,如果时间过长则断开连接
+	 *
 	 * @param socket 连接
 	 * @throws IOException 如果发生IO错误，则抛出异常
 	 */
@@ -185,8 +187,9 @@ public class Network {
 
 	/**
 	 * 处理接收到的消息
+	 *
 	 * @param message 格式化消息
-	 * @param out 输出流
+	 * @param out     输出流
 	 */
 	public void handleIncomingMessage(Message message, PrintWriter out) {
 		switch (message.getType()) {
@@ -212,6 +215,7 @@ public class Network {
 
 	/**
 	 * 发送消息
+	 *
 	 * @param message 格式化消息
 	 */
 	public void sendMessage(Message message) {
@@ -228,6 +232,7 @@ public class Network {
 
 	/**
 	 * 检查是否能成功连接到对手
+	 *
 	 * @return 连接成功与否
 	 */
 	public boolean tryConnection() {
@@ -249,6 +254,7 @@ public class Network {
 
 	/**
 	 * 关闭连接
+	 *
 	 * @throws RuntimeException 如果出现连接错误，则抛出运行时异常
 	 */
 	public void close() throws RuntimeException {

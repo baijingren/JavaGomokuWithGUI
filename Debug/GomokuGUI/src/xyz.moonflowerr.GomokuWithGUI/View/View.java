@@ -11,9 +11,6 @@ import xyz.moonflowerr.GomokuWithGUI.Var;
 
 import javax.swing.*;
 import java.awt.*;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.net.URL;
 
 public class View implements ConnectionListener {
 	/// boardPanel 棋盘的视图
@@ -32,7 +29,7 @@ public class View implements ConnectionListener {
 	JOptionPane connectionDialog;
 	JFrame tmplateFrame;
 
-	IPconnectionPanel ipPanel;
+	IPConnectionPanel ipPanel;
 
 	public View() {
 		super();
@@ -89,7 +86,7 @@ public class View implements ConnectionListener {
 		frame.add(guestPlayerPanel, c);
 
 		tmplateFrame = new JFrame();
-		ipPanel = new IPconnectionPanel();
+		ipPanel = new IPConnectionPanel();
 		tmplateFrame.add(ipPanel);
 		tmplateFrame.setSize(500, 100);
 		tmplateFrame.setResizable(false);

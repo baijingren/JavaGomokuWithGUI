@@ -11,21 +11,19 @@ import java.awt.*;
  * @package xyz.moonflowerr.GomokuWithGUI.View
  * @since openJDK 22
  */
-public class IPconnectionPanel extends JPanel {
+public class IPConnectionPanel extends JPanel {
 	private JLabel IPLabel;
 	private JTextField IPField;
 	private JButton connectButton;
 
-	public IPconnectionPanel() {
+	public IPConnectionPanel() {
 		super();
 		IPLabel = new JLabel("your IP:" + Var.IP);
 		IPField = new JTextField(10);
 		connectButton = new JButton("Connect");
 		JPanel emptyPanel = new JPanel();
 
-		connectButton.addActionListener(e -> {
-			Var.network.connectToTarget(IPField.getText());
-		});
+		connectButton.addActionListener(_ -> Var.network.connectToTarget(IPField.getText()));
 
 		setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
