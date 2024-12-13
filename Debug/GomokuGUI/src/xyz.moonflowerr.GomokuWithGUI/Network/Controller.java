@@ -27,4 +27,8 @@ public class Controller {
     public void sendPlayerInfo(String name, int color){
         network.sendMessage(new Message(Message.MessageType.PLAYER_INFO, new String[]{name, Integer.toString(color)}));
     }
+
+    public void sendWin(){
+        network.sendMessage(new Message(Message.MessageType.SUCCESS, ""));
+    }
 }

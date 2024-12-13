@@ -30,3 +30,6 @@ bin/
 
 ### temporary files ###
 Debug/GomokuGUI/Resources/sourceFile/
+
+### Log files ###
+.log

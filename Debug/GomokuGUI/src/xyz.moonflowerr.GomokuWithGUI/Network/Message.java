@@ -1,5 +1,5 @@
 /**
- * @since openJDK 22
+ * @since openJDK 22, IntelliJ
  * @author moonflowerr
  * @package xyz.moonflowerr.GomokuWithGUI.Network
  */
@@ -10,7 +10,7 @@ public class Message {
 	public enum MessageType{
 		MESSAGE, SET_CHESS, PLAYER_INFO, CONNECT, DISCONNECT, ERROR, SUCCESS
 	}
-	private MessageType type;
+	private final MessageType type;
 	private String message;
 	private int x;
 	private int y;
@@ -20,7 +20,7 @@ public class Message {
 
 	/** info 在不同消息类型下的用法
 	 * <p>PLAYER_INFO: info[0]为玩家名，info[1]为玩家确定颜色的时间</p>
-	 * <p>CONNECT: info[0]为对方IP，info[1]为对方名字</p>
+	 * <p>CONNECT: info[0]为对方名字，info[1]为对方颜色</p>
 	 * <p>DISCONNECT: info[0]为对方IP，info[1]为对方名字</p>
 	 * <p>ERROR: info[0]为错误信息</p>
 	 * <p>SUCCESS: info[0]为成功信息</p>
@@ -77,24 +77,16 @@ public class Message {
 	 */
 	public String toString(){
 		// 用：分割消息类型和消息内容,用;分割消息内容的各个部分
-		switch (type){
-			case MESSAGE:
-				return "MESSAGE:" + message;
-			case SET_CHESS:
-				return "SET_CHESS:" + x + ";" + y + ";" + player;
-			case PLAYER_INFO:
-				return "PLAYER_INFO:" + info[0] + ";" + info[1];
-			case CONNECT:
-				return "CONNECT:" + info[0] + ";" + info[1];
-			case DISCONNECT:
-				return "DISCONNECT:" + info[0] + ";" + info[1];
-			case ERROR:
-				return "ERROR:" + message;
-			case SUCCESS:
-				return "SUCCESS:" + message;
-			default:
-				return "ERROR:Unknown message type";
-		}
+		return switch (type) {
+			case MESSAGE -> "MESSAGE:" + message;
+			case SET_CHESS -> "SET_CHESS:" + x + ";" + y + ";" + player;
+			case PLAYER_INFO -> "PLAYER_INFO:" + info[0] + ";" + info[1];
+			case CONNECT -> "CONNECT:" + info[0] + ";" + info[1];
+			case DISCONNECT -> "DISCONNECT:" + info[0] + ";" + info[1];
+			case ERROR -> "ERROR:" + message;
+			case SUCCESS -> "SUCCESS:" + message;
+			default -> "ERROR:Unknown message type";
+		};
 	}
 
 	/**

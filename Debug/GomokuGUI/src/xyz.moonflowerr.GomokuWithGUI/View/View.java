@@ -1,16 +1,18 @@
 /**
- * @since openJDK 22
  * @author moonflowerr
  * @package xyz.moonflowerr.GomokuWithGUI.View
+ * @since openJDK 22
  */
 package xyz.moonflowerr.GomokuWithGUI.View;
 
+import xyz.moonflowerr.GomokuWithGUI.LogPrinter;
 import xyz.moonflowerr.GomokuWithGUI.Network.*;
 import xyz.moonflowerr.GomokuWithGUI.Var;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.net.URL;
 
 public class View implements ConnectionListener {
@@ -27,6 +29,8 @@ public class View implements ConnectionListener {
 	/// connected 连接状态
 	Boolean connected = false;
 
+	JOptionPane connectionDialog;
+
 	public View() {
 		super();
 	}
@@ -40,7 +44,7 @@ public class View implements ConnectionListener {
 
 		URL hostHeadImageURL = getClass().getResource("/Icon/Cell/White/Center.png");
 		URL guestHeadImageURL = getClass().getResource("/Icon/Cell/White/Center.png");
-		if(hostHeadImageURL == null || guestHeadImageURL == null) {
+		if (hostHeadImageURL == null || guestHeadImageURL == null) {
 			System.err.println("Cannot find head image");
 		}
 		hostPlayerPanel = new PlayerPanel("Host", hostHeadImageURL);
@@ -55,34 +59,34 @@ public class View implements ConnectionListener {
 
 		c.gridx = 0;
 		c.gridy = 0;
-		c.weightx = (7.0/9.0);
-		c.weighty = (11.0/12.0);
+		c.weightx = (7.0 / 9.0);
+		c.weighty = (11.0 / 12.0);
 		c.gridwidth = 2;
 		frame.add(boardPanel, c);
 
 		c.gridx = 2;
 		c.gridy = 0;
-		c.weightx = (2.0/9.0);
-		c.weighty = (11.0/12.0);
+		c.weightx = (2.0 / 9.0);
+		c.weighty = (11.0 / 12.0);
 		c.gridwidth = 1;
 		frame.add(chatPanel, c);
 
 		c.gridx = 0;
 		c.gridy = 1;
-		c.weightx = (1.0/3.0);
-		c.weighty = (0.5/12.0);
+		c.weightx = (1.0 / 3.0);
+		c.weighty = (0.5 / 12.0);
 		frame.add(hostPlayerPanel, c);
 
 		c.gridx = 1;
 		c.gridy = 1;
-		c.weightx = (1.0/3.0);
-		c.weighty = (0.5/12.0);
+		c.weightx = (1.0 / 3.0);
+		c.weighty = (0.5 / 12.0);
 		frame.add(controlPanel, c);
 
 		c.gridx = 2;
 		c.gridy = 1;
-		c.weightx =  (1.0/3.0);
-		c.weighty = (0.5/12.0);
+		c.weightx = (1.0 / 3.0);
+		c.weighty = (0.5 / 12.0);
 		frame.add(guestPlayerPanel, c);
 
 		frame.setResizable(false);
@@ -94,9 +98,9 @@ public class View implements ConnectionListener {
 	}
 
 	/// 启动面板，获得玩家名称
-	public void getName(){
+	public void getName() {
 		String hostName = JOptionPane.showInputDialog("Please input your name:");
-		while(hostName == null || hostName.isEmpty()) {
+		while (hostName == null || hostName.isEmpty()) {
 			JOptionPane.showMessageDialog(null, "Name cannot be empty.");
 			hostName = JOptionPane.showInputDialog("Please input your name:");
 		}
@@ -104,18 +108,26 @@ public class View implements ConnectionListener {
 	}
 
 	/// 启动面板，输入对手IP
-	public void getOpponentIP(){
-		// TODO:在面板上显示自己的IP
-		String opponentIP = JOptionPane.showInputDialog("Waiting for opponent connection, or you can input your opponent IP:");
-		while(opponentIP == null || opponentIP.isEmpty()){
+	public void getOpponentIP() {
+		String localIP = null;
+		try {
+			localIP = InetAddress.getLocalHost().getHostAddress();
+		} catch (UnknownHostException e) {
+			LogPrinter.printSevere("Cannot get local IP address. " + e.getMessage());
+			localIP = "Error";
+		}
+//		String opponentIP = JOptionPane.showInputDialog("Your IP address is " + localIP + "\n" + "Waiting for opponent connection, or you can input your opponent IP:");
+		connectionDialog = new JOptionPane();
+		String opponentIP = connectionDialog.showInputDialog("Your IP address is " + localIP + "\n" + "Waiting for opponent connection, or you can input your opponent IP:");
+		while (opponentIP == null || opponentIP.isEmpty()) {
 			JOptionPane.showMessageDialog(null, "IP cannot be empty.");
-			opponentIP = JOptionPane.showInputDialog("Please input your opponent IP:");
+			opponentIP = JOptionPane.showInputDialog("Your IP address is " + localIP + "\n" + "Waiting for opponent connection, or you can input your opponent IP:");
 		}
 		Var.opponentIP = opponentIP;
 		Var.network.connectToTarget(Var.opponentIP);
 	}
 
-	public BoardPanel getBoardPanel(){
+	public BoardPanel getBoardPanel() {
 		return boardPanel;
 	}
 
@@ -127,6 +139,9 @@ public class View implements ConnectionListener {
 		connected = true;
 		chatPanel.addMessage("System", "Connected to " + Var.opponentIP);
 		// TODO:如果有等待连接的对话框，可以在这里关闭它。
+		if (connectionDialog != null) {
+			connectionDialog.setVisible(false);
+		}
 	}
 
 	/**

@@ -56,6 +56,7 @@ public class BoardPanel extends JPanel{
                 if(isWin == 1){
                     JOptionPane.showMessageDialog(null, "You Win!");
                     //TODO: 向对方发送胜利信息
+                    Var.networkController.sendWin();
                 }
                 repaint();
             }
