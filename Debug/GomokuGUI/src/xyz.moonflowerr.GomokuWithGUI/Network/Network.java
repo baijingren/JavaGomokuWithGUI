@@ -9,7 +9,6 @@ package xyz.moonflowerr.GomokuWithGUI.Network;
 import xyz.moonflowerr.GomokuWithGUI.LogPrinter;
 import xyz.moonflowerr.GomokuWithGUI.Var;
 
-import javax.swing.*;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -19,7 +18,7 @@ import java.util.List;
 
 public class Network {
 	public static String IP; // 本机IP
-	public static final int PORT = 17890;
+	public static int PORT;
 	public static Controller controller;
 
 	public static String opponentIP;
@@ -28,6 +27,9 @@ public class Network {
 
 	private boolean running;
 	private boolean isFirstConnected = false;
+
+	private BufferedReader in;
+	private PrintWriter out;
 
 	/**
 	 * 监听连接事件
@@ -72,44 +74,49 @@ public class Network {
 		IP = Var.IP;
 		opponentIP = Var.opponentIP;
 		controller = Var.networkController;
-		try {
-			serverSocket = new ServerSocket(PORT);
-		} catch (IOException e) {
-			LogPrinter.printSevere("Port " + PORT + "has been occupied.");
-//			throw e;
-			LogPrinter.printSevere("Failed to create the server socket: " + e.getMessage());
-			e.printStackTrace();
-		}
 		running = false;
+	}
+
+	public Network(int port) throws IOException {
+		IP = Var.IP;
+		opponentIP = Var.opponentIP;
+		controller = Var.networkController;
+		running = false;
+		PORT = port;
 	}
 
 	/**
 	 * 开启服务器，等待对手连接，与connectToTarget方法互斥
 	 */
 	public void startServer() {
-		new Thread(() -> {
-			while (true) {
+		new Thread() {
+			public void run() {
 				try {
 					LogPrinter.printLog("Server started. (Network.startServer)");
+					serverSocket = new ServerSocket(PORT);
 					LogPrinter.printLog("Waiting for a connection... (Network.startServer)");
 					socket = serverSocket.accept();
+					LogPrinter.printLog("Accepted connection from " + socket.getInetAddress() + ". (Network.startServer)");
 					running = true;
 					isFirstConnected = false;
 					Var.youAreBlack = false;
 					notifyConnectionListeners();
+					LogPrinter.printLog(String.valueOf(socket.isClosed()) + " (Network.startServer)");
+					handleConnection();
+					LogPrinter.printLog(String.valueOf(socket.isClosed()) + " (Network.startServer)");
+					startReceiveMessage();
+				} catch (IOException e) {
+					LogPrinter.printSevere("Port " + PORT + " has been occupied.");LogPrinter.printSevere("Failed to create the server socket: " + e.getMessage());LogPrinter.logStackTrace(e);
 
-//				System.err.println("Connected to " + socket.getInetAddress());
-					LogPrinter.printLog("Accepted connection from " + socket.getInetAddress() + ". (Network.startServer)");
-					handleConnection(socket);
-				} catch(IOException e){
-//				e.printStackTrace();
 					LogPrinter.printSevere("Failed to start the server: " + e.getMessage() + ". (Network.startServer)");
-				} catch(Exception e){
-//				e.printStackTrace();
+					if (serverSocket.isClosed()) {
+						LogPrinter.printSevere("Server socket is closed. Exiting loop.");
+					}
+				} catch (Exception e) {
 					LogPrinter.printSevere("Other error happened when start the server: " + e.getMessage() + ". (Network.startServer)");
 				}
 			}
-		}).start();
+		}.start();
 	}
 
 	/**
@@ -121,77 +128,70 @@ public class Network {
 		if (ip == null) {
 			return;
 		}
-		new Thread(() -> {
-			while (true) {
-				try {
-					Socket client = new Socket(ip, PORT);
-					isFirstConnected = true;
-					Var.youAreBlack = true;
-					running = true;
-					socket = client;
-					notifyConnectionListeners();
-					handleConnection(client);
-					LogPrinter.printLog("Connected to " + ip);
-				} catch (IOException e) {
-//				e.printStackTrace();
-					LogPrinter.printSevere("Failed to connect to the target: " + e.getMessage() + ". (Network.connectToTarget)");
-					throw new RuntimeException(e);
-				} catch (Exception e) {
-//				e.printStackTrace();
-					LogPrinter.printSevere("Other error happened when connect to the target: " + e.getMessage() + ". (Network.connectToTarget)");
-				}
+		try {
+			socket = new Socket(ip, PORT);
+			isFirstConnected = true;
+			Var.youAreBlack = true;
+			running = true;
+			notifyConnectionListeners();
+			LogPrinter.printLog("Connected to " + ip);
+			handleConnection();
+			startReceiveMessage();
+		} catch (IOException e) {
+			LogPrinter.printSevere("Failed to connect to the target: " + e.getMessage() + ". (Network.connectToTarget)");
+			if (socket != null && socket.isClosed()) {
+				LogPrinter.printSevere("Client socket is closed. Exiting loop.");
 			}
-		}).start();
+			throw new RuntimeException(e);
+		} catch (Exception e) {
+			LogPrinter.printSevere("Other error happened when connect to the target: " + e.getMessage() + ". (Network.connectToTarget)");
+			LogPrinter.logStackTrace(e);
+		}
 	}
 
 	/**
 	 * 处理连接，同时通过监听器返回连接状态,如果时间过长则断开连接
 	 *
-	 * @param socket 连接
 	 * @throws IOException 如果发生IO错误，则抛出异常
 	 */
-	public void handleConnection(Socket socket) throws IOException {
-		socket.setSoTimeout(300000);
-		try (BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			 PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
-			notifyConnectionListeners();
-			Var.networkController.sendPlayerInfo(Var.name);
-			while (running) {
-				String line = in.readLine();
-				if (line == null) {
-//					break;
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException ie) {
-						Thread.currentThread().interrupt();
-						LogPrinter.printSevere("Thread was interrupted: " + ie.getMessage() + ". (Network.handleConnection)");
-					}
-					LogPrinter.printWarning("No message received, continue to wait... (Network.handleConnection)");
-					continue;
-				}
-				LogPrinter.printLog("Received message: " + line + ". (Network.handleConnection)");
+	public void handleConnection() throws IOException {
+		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		Var.networkController.sendPlayerInfo(Var.name);
+	}
+
+	/**
+	 * 新建线程用于连接接收消息
+	 */
+	public void startReceiveMessage() {
+		new Thread() {
+			public void run() {
+				String line;
 				try {
-					Message receivedMessage = Codec.decode(line);
-					if (receivedMessage != null) {
-						handleIncomingMessage(receivedMessage, out);
+					while((line = in.readLine()) != null){
+						LogPrinter.printLog("Received message: " + line + ". (Network.startReceiveMessage)");
+						Message receivedMessage = Codec.decode(line);
+						if (receivedMessage != null) {
+							handleIncomingMessage(receivedMessage);
+						} else {
+							throw new IllegalArgumentException("Received message is null.");
+						}
 					}
 				} catch (IllegalArgumentException e) {
-//					System.err.println("Failed to decode the message: " + e.getMessage());
-					LogPrinter.printSevere("Failed to decode the message: " + e.getMessage() + ". (Network.handleConnection)");
+					LogPrinter.printSevere("Failed to decode the message: " + e.getMessage() + ". (Network.startReceiveMessage)");
+				} catch (IOException e) {
+					LogPrinter.logStackTrace(e);
+					LogPrinter.printSevere(" (Network.startReceiveMessage)");
 				}
 			}
-		} finally {
-			notifyDisconnectionListeners();
-		}
+		}.start();
 	}
 
 	/**
 	 * 处理接收到的消息
 	 *
 	 * @param message 格式化消息
-	 * @param out     输出流
 	 */
-	public void handleIncomingMessage(Message message, PrintWriter out) {
+	public void handleIncomingMessage(Message message) {
 		switch (message.getType()) {
 			case MESSAGE -> Var.controller.updateMessage(message.getContent()[1]);
 			case SET_CHESS -> Var.controller.updateChess(message.getX(), message.getY(), message.getPlayer());
@@ -220,36 +220,14 @@ public class Network {
 	 */
 	public void sendMessage(Message message) {
 		if (socket != null && !socket.isClosed()) {
-			try (PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
+			try {
+				out = new PrintWriter(socket.getOutputStream(), true);
 				out.println(Codec.encode(message));
 				LogPrinter.printLog("Sent message: " + message.toString());
 			} catch (IOException e) {
-//				e.printStackTrace();
 				LogPrinter.printSevere("Failed to send message: " + e.getMessage());
 			}
 		}
-	}
-
-	/**
-	 * 检查是否能成功连接到对手
-	 *
-	 * @return 连接成功与否
-	 */
-	public boolean tryConnection() {
-		// try to connect to the opponent and return if the ip could be connected
-		String ip = Var.opponentIP;
-		if (ip == null) {
-			return false;
-		}
-		try {
-			Socket client = new Socket(ip, PORT);
-			client.close();
-			LogPrinter.printLog("ip " + ip + " is available.");
-		} catch (IOException e) {
-			JOptionPane.showMessageDialog(null, "Cannot connect to the opponent. Game will be closed.");
-			return false;
-		}
-		return true;
 	}
 
 	/**
@@ -275,5 +253,13 @@ public class Network {
 //			e.printStackTrace();
 			LogPrinter.printSevere("Failed to close the connection: " + e.getMessage());
 		}
+	}
+
+	public boolean isRunning() {
+		return running;
+	}
+
+	public boolean isFirstConnected() {
+		return isFirstConnected;
 	}
 }

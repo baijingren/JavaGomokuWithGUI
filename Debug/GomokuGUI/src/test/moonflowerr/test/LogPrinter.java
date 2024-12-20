@@ -1,10 +1,10 @@
 /**
  * @author Jingren Bai
- * @package xyz.moonflowerr.GomokuWithGUI
+ * @package moonflowerr.test
  * @since openJDK 22
  */
 
-package xyz.moonflowerr.GomokuWithGUI;
+package moonflowerr.test;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -16,7 +16,7 @@ import java.util.logging.*;
  */
 public class LogPrinter {
 	private static final Logger log = Logger.getLogger(LogPrinter.class.getName());
-	private static final String LogFileName = "Game.log";
+	private static final String LogFileName = "Test.log";
 
 	static {
 		Formatter formatter = new SimpleFormatter() {
