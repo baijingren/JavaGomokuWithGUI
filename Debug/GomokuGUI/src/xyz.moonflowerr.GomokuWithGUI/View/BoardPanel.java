@@ -1,14 +1,16 @@
 package xyz.moonflowerr.GomokuWithGUI.View;
 
+import xyz.moonflowerr.GomokuWithGUI.LogPrinter;
 import xyz.moonflowerr.GomokuWithGUI.Var;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.LinkedList;
+
+import static java.lang.System.exit;
+import static java.lang.Thread.sleep;
 
 public class BoardPanel extends JPanel{
     // 这是棋盘的类，继承自JPanel
@@ -35,31 +37,29 @@ public class BoardPanel extends JPanel{
                     if(isSuccess) {
                         System.err.println("set Chess.");
                         Var.isYourTurn = false;
-//                        Var.network.sendChess(cellX, cellY, (Var.youAreBlack?Var.BLACK:Var.WHITE));
+                        Var.network.sendChess(cellX, cellY, (Var.youAreBlack?Var.BLACK:Var.WHITE));
                     }
                     else{
                         JOptionPane.showMessageDialog(null, "You can't put chess here.");
                     }
                 }
-
                 repaint();
+                int isWin = Var.model.isCurrentPlayerWin(cellX, cellY);
+                LogPrinter.printLog("Player " + (Var.youAreBlack?"Black":"White") + "; Last move: " + cellX + " " + cellY + "; color: " + Var.model.query(cellX, cellY) + "; isWin: " + isWin);
+                if(isWin == 1){
+                    Var.networkController.sendWin();
+                    Var.view.showWin();
+                    try {
+                        sleep(1000);
+                    } catch (InterruptedException ee) {
+                        LogPrinter.logStackTrace(ee);
+                    }
+                    exit(0);
+                }
             }
             public void mouseReleased(MouseEvent e){
-                int x = e.getX();
-                int y = e.getY();
-                int cellWidth = getWidth() / (boardSize + 1);
-                int cellHeight = getHeight() / (boardSize + 1);
-
-                int cellX = x / cellWidth;
-                int cellY = y / cellHeight;
-                int isWin = Var.model.isCurrentPlayerWin(cellX, cellY);
-                if(isWin == 1){
-                    JOptionPane.showMessageDialog(null, "You Win!");
-                    //TODO: 向对方发送胜利信息
-                    Var.networkController.sendWin();
-                }
-                repaint();
-            }
+                super.mouseReleased(e);
+			}
         });
     }
 

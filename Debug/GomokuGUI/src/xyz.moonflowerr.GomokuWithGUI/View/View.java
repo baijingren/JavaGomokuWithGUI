@@ -11,6 +11,7 @@ import xyz.moonflowerr.GomokuWithGUI.Var;
 
 import javax.swing.*;
 import java.awt.*;
+import java.net.URL;
 
 public class View implements ConnectionListener {
 	/// boardPanel 棋盘的视图
@@ -26,7 +27,6 @@ public class View implements ConnectionListener {
 	/// connected 连接状态
 	Boolean connected = false;
 
-	JOptionPane connectionDialog;
 	JFrame tmplateFrame;
 
 	IPConnectionPanel ipPanel;
@@ -43,8 +43,22 @@ public class View implements ConnectionListener {
 		frame.setSize(1200, 900);
 		frame.setLayout(new GridBagLayout());
 
-		hostPlayerPanel = new PlayerPanel(Var.name);
-		guestPlayerPanel = new PlayerPanel(Var.opponentName);
+		URL blackURL = getClass().getResource("/Black.png");
+		URL whiteURL = getClass().getResource("/White.png");
+
+		if(blackURL == null || whiteURL == null){
+			LogPrinter.printSevere("Cannot find image resources.");
+			hostPlayerPanel = new PlayerPanel(Var.name);
+			guestPlayerPanel = new PlayerPanel(Var.opponentName);
+		}
+		else if(Var.youAreBlack){
+			hostPlayerPanel = new PlayerPanel(Var.name, blackURL);
+			guestPlayerPanel = new PlayerPanel(Var.opponentName, whiteURL);
+		}
+		else{
+			hostPlayerPanel = new PlayerPanel(Var.name, whiteURL);
+			guestPlayerPanel = new PlayerPanel(Var.opponentName, blackURL);
+		}
 
 		boardPanel = new BoardPanel();
 		chatPanel = new ChatPanel();
@@ -86,6 +100,7 @@ public class View implements ConnectionListener {
 		frame.add(guestPlayerPanel, c);
 
 		tmplateFrame = new JFrame();
+		tmplateFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		ipPanel = new IPConnectionPanel();
 		tmplateFrame.add(ipPanel);
 		tmplateFrame.setSize(500, 100);
@@ -118,9 +133,16 @@ public class View implements ConnectionListener {
 	/// 启动面板，获得玩家名称
 	public void getName() {
 		String hostName = JOptionPane.showInputDialog("Please input your name:");
-		while (hostName == null || hostName.isEmpty()) {
-			JOptionPane.showMessageDialog(null, "Name cannot be empty.");
-			hostName = JOptionPane.showInputDialog("Please input your name:");
+		if (hostName == null || hostName.isEmpty()) {
+			JOptionPane.showMessageDialog(null, "Name cannot be empty. Game will exit.");
+			try{
+				Thread.sleep(1000);
+			} catch (InterruptedException e){
+				Thread.currentThread().interrupt();
+				LogPrinter.printSevere("Thread was interrupted: " + e.getMessage() + ". (View.getName)");
+			}
+			LogPrinter.printSevere("Name cannot be empty.Game will exit.");
+			System.exit(0);
 		}
 		Var.name = hostName;
 	}
@@ -149,5 +171,21 @@ public class View implements ConnectionListener {
 	public void onDisconnect() {
 		connected = false;
 		chatPanel.addMessage("System", "Disconnected from " + Var.opponentIP);
+	}
+
+	/**
+	 * 设置对手的名字
+	 * @param name 对手的名字
+	 */
+	public void setOpponentName(String name){
+		guestPlayerPanel.setName(name);
+	}
+
+	public void showLost() {
+		JOptionPane.showMessageDialog(null, "You Lost!");
+	}
+
+	public void showWin() {
+		JOptionPane.showMessageDialog(null, "You Win!");
 	}
 }

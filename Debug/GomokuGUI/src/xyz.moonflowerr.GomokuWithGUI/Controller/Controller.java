@@ -8,6 +8,9 @@ package xyz.moonflowerr.GomokuWithGUI.Controller;
 import xyz.moonflowerr.GomokuWithGUI.LogPrinter;
 import xyz.moonflowerr.GomokuWithGUI.Var;
 
+import static java.lang.System.exit;
+import static java.lang.Thread.sleep;
+
 public class Controller {
     public void updateMessage(String newMessage){
         Var.view.getChatPanel().addMessage(Var.opponentName, newMessage);
@@ -53,5 +56,30 @@ public class Controller {
      */
     public void repaint(){
         Var.view.getBoardPanel().repaint();
+    }
+
+    public void setOpponentName(String name){
+        Var.view.setOpponentName(name);
+    }
+
+    public void updateSuccess() {
+        Var.view.showLost();
+        try {
+            sleep(5000);
+        } catch (InterruptedException e) {
+            LogPrinter.logStackTrace(e);
+        }
+        exit(0);
+    }
+
+    public void surrender() {
+        Var.networkController.sendSurrender();
+        Var.view.showWin();
+        try {
+            sleep(5000);
+        } catch (InterruptedException e) {
+            LogPrinter.logStackTrace(e);
+        }
+        exit(0);
     }
 }

@@ -5,10 +5,6 @@
  */
 package xyz.moonflowerr.GomokuWithGUI.Network;
 
-import java.awt.*;
-import java.util.List;
-import java.util.HashSet;
-
 public class Controller {
     public Network network;
 
@@ -24,15 +20,15 @@ public class Controller {
         network.sendMessage(new Message(Message.MessageType.SET_CHESS, x, y, color));
     }
 
-    public void sendPlayerInfo(String name, int color){
-        network.sendMessage(new Message(Message.MessageType.PLAYER_INFO, new String[]{name, Integer.toString(color)}));
-    }
-
     public void sendWin(){
-        network.sendMessage(new Message(Message.MessageType.SUCCESS, ""));
+        network.sendMessage(new Message(Message.MessageType.SUCCESS, new String[]{"empty", "empty"}));
     }
 
     public void sendPlayerInfo(String name){
-        network.sendMessage(new Message(Message.MessageType.PLAYER_INFO, new String[]{name, ""}));
+        network.sendMessage(new Message(Message.MessageType.PLAYER_INFO, new String[]{name, "empty"}));
+    }
+
+    public void sendSurrender() {
+        network.sendMessage(new Message(Message.MessageType.SUCCESS, new String[]{"empty", "empty"}));
     }
 }

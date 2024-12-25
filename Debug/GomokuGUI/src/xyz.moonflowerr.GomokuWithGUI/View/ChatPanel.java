@@ -1,5 +1,7 @@
 package xyz.moonflowerr.GomokuWithGUI.View;
 
+import xyz.moonflowerr.GomokuWithGUI.Var;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -23,6 +25,11 @@ public class ChatPanel extends JPanel{
 
         sendButton = new JButton("发送");
         sendButton.setSize(80, 30);
+        sendButton.addActionListener(e -> {
+            String message = chatField.getText();
+            chatField.setText("");
+            Var.controller.sendMessage(message);
+        });
 
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.BOTH;

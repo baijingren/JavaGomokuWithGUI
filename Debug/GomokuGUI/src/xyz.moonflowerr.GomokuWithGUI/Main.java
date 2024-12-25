@@ -18,7 +18,6 @@ public class Main {
     public static void main(String[] args) throws Exception{
         init();
         Var.view.getName();
-        Var.network.startServer();
         Var.view.createWindow();
     }
 }

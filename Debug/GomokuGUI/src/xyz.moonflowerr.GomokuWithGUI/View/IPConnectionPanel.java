@@ -15,15 +15,27 @@ public class IPConnectionPanel extends JPanel {
 	private JLabel IPLabel;
 	private JTextField IPField;
 	private JButton connectButton;
+	private JButton listenButton;
 
 	public IPConnectionPanel() {
 		super();
 		IPLabel = new JLabel("your IP:" + Var.IP);
 		IPField = new JTextField(10);
 		connectButton = new JButton("Connect");
+		listenButton = new JButton("Listen");
+
 		JPanel emptyPanel = new JPanel();
 
-		connectButton.addActionListener(_ -> Var.network.connectToTarget(IPField.getText()));
+		connectButton.addActionListener(_ -> {
+			Var.youAreBlack = true;
+			Var.isYourTurn = true;
+			Var.network.connectToTarget(IPField.getText());
+		});
+		listenButton.addActionListener(_ -> {
+			Var.youAreBlack = false;
+			Var.isYourTurn = false;
+			Var.network.startServer();
+		});
 
 		setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
@@ -46,7 +58,7 @@ public class IPConnectionPanel extends JPanel {
 		c.weightx = 0.3;
 		c.weighty = 1.0/3.0;
 		c.gridheight = 2;
-		add(emptyPanel, c);
+		add(listenButton, c);
 
 		c.gridx = 1;
 		c.gridy = 2;

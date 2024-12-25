@@ -75,6 +75,7 @@ public class Network {
 		opponentIP = Var.opponentIP;
 		controller = Var.networkController;
 		running = false;
+		PORT = 17890;
 	}
 
 	public Network(int port) throws IOException {
@@ -138,7 +139,7 @@ public class Network {
 			handleConnection();
 			startReceiveMessage();
 		} catch (IOException e) {
-			LogPrinter.printSevere("Failed to connect to the target: " + e.getMessage() + ". (Network.connectToTarget)");
+			LogPrinter.printSevere("Failed to connect to the target(" + ip +"): " + e.getMessage() + ". (Network.connectToTarget)");
 			if (socket != null && socket.isClosed()) {
 				LogPrinter.printSevere("Client socket is closed. Exiting loop.");
 			}
@@ -197,6 +198,7 @@ public class Network {
 			case SET_CHESS -> Var.controller.updateChess(message.getX(), message.getY(), message.getPlayer());
 			case PLAYER_INFO -> {
 				Var.opponentName = message.getInfo()[0];
+				Var.controller.setOpponentName(message.getInfo()[0]);
 				LogPrinter.printLog("Player info: " + Arrays.toString(message.getInfo()));
 			}
 			case CONNECT -> {
@@ -208,7 +210,10 @@ public class Network {
 				LogPrinter.printLog("Disconnected from " + message.getInfo()[0] + ". (Network.java)");
 			}
 			case ERROR -> LogPrinter.printSevere("Error: " + Arrays.toString(message.getContent()));
-			case SUCCESS -> LogPrinter.printLog("Success: " + Arrays.toString(message.getContent()));
+			case SUCCESS -> {
+				Var.controller.updateSuccess();
+				LogPrinter.printLog("Success: " + Arrays.toString(message.getContent()));
+			}
 			default -> LogPrinter.printSevere("Unknown message type.");
 		}
 	}
@@ -261,5 +266,10 @@ public class Network {
 
 	public boolean isFirstConnected() {
 		return isFirstConnected;
+	}
+
+	public void sendChess(int cellX, int cellY, int player) {
+		Message message = new Message(Message.MessageType.SET_CHESS, cellX, cellY, player);
+		sendMessage(message);
 	}
 }

@@ -40,7 +40,7 @@ public class Var {
     public static Boolean youAreBlack = true;
 
     // Network
-    public static String name = "test"; // TODO: 实现在游戏开始界面输入名字
+    public static String name = "test";
     public static String IP;
     public static String opponentName;
     public static String opponentIP;
