@@ -27,7 +27,7 @@ public class View implements ConnectionListener {
 	/// connected 连接状态
 	Boolean connected = false;
 
-	JFrame tmplateFrame;
+	JFrame templateFrame;
 
 	IPConnectionPanel ipPanel;
 
@@ -99,13 +99,13 @@ public class View implements ConnectionListener {
 		c.weighty = (0.5 / 12.0);
 		frame.add(guestPlayerPanel, c);
 
-		tmplateFrame = new JFrame();
-		tmplateFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		templateFrame = new JFrame();
+		templateFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		ipPanel = new IPConnectionPanel();
-		tmplateFrame.add(ipPanel);
-		tmplateFrame.setSize(500, 100);
-		tmplateFrame.setResizable(false);
-		tmplateFrame.setVisible(true);
+		templateFrame.add(ipPanel);
+		templateFrame.setSize(500, 100);
+		templateFrame.setResizable(false);
+		templateFrame.setVisible(true);
 
 		while (!connected) {
 			try {
@@ -159,8 +159,8 @@ public class View implements ConnectionListener {
 		connected = true;
 		chatPanel.addMessage("System", "Connected to " + Var.opponentIP);
 		//如果有等待连接的对话框，可以在这里关闭它。
-		if(tmplateFrame != null) {
-			tmplateFrame.setVisible(false);
+		if(templateFrame != null) {
+			templateFrame.setVisible(false);
 		}
 	}
 
